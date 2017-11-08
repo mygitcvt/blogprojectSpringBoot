@@ -16,10 +16,10 @@ public class BlogValidator {
 
 	public static boolean validateTitlePattern(final String title) {
 		logger.info("Validating title.");
-		//System.out.println("validate title");
+
 		pattern = Pattern.compile(TITLE_PATTERN);
 		matcher = pattern.matcher(title);
-		//System.out.println(matcher.matches());
+
 		boolean result = matcher.matches();
 		logger.info("title validated : {}", result);
 		return result;
@@ -30,11 +30,10 @@ public class BlogValidator {
 
 	public static boolean validatePostContentPattern(final String postContent) {
 		logger.info("Validating postcontent");
-		
-		//System.out.println("validate postcontent");
+
 		pattern = Pattern.compile(POST_CONTENT_PATTERN);
 		matcher = pattern.matcher(postContent);
-		//System.out.println(matcher.matches());
+
 		boolean result = matcher.matches();
 		logger.info("postContent validated : {}", result);
 		return result;

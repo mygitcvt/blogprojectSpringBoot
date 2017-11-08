@@ -30,16 +30,16 @@ public class EmpDaoImpl implements EmpDao {
 
 	public int save(Emp p) {
 
-		String sql = "insert into SIGNUP(First_Name,Last_Name,Username,Email,Password)values('" + p.getFirst_Name().trim()
-				+ "','" + p.getLast_Name().trim() + "','" + p.getUsername().trim() + "','" + p.getEmail().trim() + "','" + p.getPassword().trim()
-				+ "')";
+		String sql = "insert into SIGNUP(First_Name,Last_Name,Username,Email,Password)values('"
+				+ p.getFirst_Name().trim() + "','" + p.getLast_Name().trim() + "','" + p.getUsername().trim() + "','"
+				+ p.getEmail().trim() + "','" + p.getPassword().trim() + "')";
 		return jdbcTemplate.update(sql);
 	}
 
 	public int update(Emp p, int id) {
 
-		String sql = "update SIGNUP set First_Name='" + p.getFirst_Name().trim() + "', Last_Name='" + p.getLast_Name().trim()
-				+ "', Username='" + p.getUsername().trim() + "',Email='" + p.getEmail().trim() 
+		String sql = "update SIGNUP set First_Name='" + p.getFirst_Name().trim() + "', Last_Name='"
+				+ p.getLast_Name().trim() + "', Username='" + p.getUsername().trim() + "',Email='" + p.getEmail().trim()
 				+ "' where id=" + id + "";
 		return jdbcTemplate.update(sql);
 	}

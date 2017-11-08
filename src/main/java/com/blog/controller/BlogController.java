@@ -8,11 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.websocket.Session;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,13 +27,18 @@ import com.blog.model.Blog;
 import com.blog.model.Emp;
 import com.blog.validation.BlogValidator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/blogcontroller")
 public class BlogController {
+	private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
 
 	String id;
 	String email;
 	String userName;
+	int noOflikes;
 
 	@Autowired
 	BlogDao blogDao;
@@ -39,19 +46,9 @@ public class BlogController {
 	@Autowired
 	private EmpDao empDao;
 
-	
-	
-	
 	@RequestMapping(value = "/blog", method = RequestMethod.POST)
 	public String createBlog(@ModelAttribute("blog") Blog blog, ModelMap mm, HttpServletRequest request) {
 		try {
-			HttpSession session = request.getSession(false);
-			Object emailFromSessionObject = session.getAttribute("email");
-			String emailFromSession = emailFromSessionObject.toString();
-			Object userNameFromSessionObject = session.getAttribute("username");
-			String userNameFromSession = userNameFromSessionObject.toString();
-			this.userName = userNameFromSession;
-			this.email = emailFromSession;
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
@@ -60,6 +57,16 @@ public class BlogController {
 				return "you are not login";
 
 			} else {
+
+				HttpSession session = request.getSession(false);
+
+				Object emailFromSessionObject = session.getAttribute("email");
+				String emailFromSession = emailFromSessionObject.toString();
+				Object userNameFromSessionObject = session.getAttribute("username");
+				String userNameFromSession = userNameFromSessionObject.toString();
+				this.userName = userNameFromSession;
+				this.email = emailFromSession;
+
 				String title = blog.getTitle();
 
 				String postcontent = blog.getPostcontent();
@@ -69,6 +76,7 @@ public class BlogController {
 
 				if (BlogValidator.validateTitlePattern(title.trim())
 						&& BlogValidator.validatePostContentPattern(postcontent.trim())) {
+					// ("creting blog");
 
 					blogDao.createblog(title.trim(), postcontent.trim(), email, userName, createdOnDate,
 							lastUpdatedOnDate);
@@ -90,21 +98,10 @@ public class BlogController {
 
 	}
 
-	
-	
-	
-	
-	
 	@RequestMapping(value = "/blog", method = RequestMethod.GET)
 	public List<Blog> blogList(HttpServletRequest request) {
 		try {
-			List<Blog> list = blogDao.getBlogList();
 
-			return list;
-
-			
-			
-			/*
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
@@ -117,67 +114,49 @@ public class BlogController {
 				return list;
 
 			}
-*/		} catch (Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 
 	}
 
-	
-	
-	
 	@RequestMapping(value = "like/{postid}")
-	public List<Blog> likePost(@PathVariable String postid, HttpServletRequest request, ModelMap modelMap) {
+	public int likePost(HttpServletRequest request, ModelMap modelMap, @PathVariable String postid) {
 
 		try {
-
-			HttpSession session = request.getSession(false);
-			session.setAttribute("postid", postid);
-
-			Blog blog = blogDao.getBlogByPostId(postid);
-
-			if (blog == null) {
-				System.out.println("this postid is invalid");
-				return null;
-			}
-
-			String emailFromPostId = blog.getEmail();
-
-			// String emailFromSession = blogDao.verfifyBeforeUpdateDelete(request);
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
 
-				return null;
+				logger.info("login required");
 
 			} else {
+				
+				HttpSession session = request.getSession(false);
 
-				blog = blogDao.getBlogByPostId(postid);
+				Object sessionObject = session.getAttribute("email");
+				String emailFromSession = sessionObject.toString();
 
-				String postId = blog.getPostid();
-				this.id = postId;
+				int noOfLikes = blogDao.likePost(emailFromSession, postid, request);
 
-				List<Blog> list = blogDao.likePost(emailFromPostId, id, request);
+				this.noOflikes = noOfLikes;
 
-				return list;
+				return noOfLikes;
 
 			}
+			return (Integer) null;
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+
+			return (Integer) null;
 
 		}
 
 	}
 
-	
-	
-	@RequestMapping(value = "/blog/{postid}", method = RequestMethod.PUT)
-	public String updateBlog(@ModelAttribute("blog") Blog blog, HttpServletRequest request,
-			@PathVariable String postid) {
+	@RequestMapping(value = "/blog", method = RequestMethod.PUT)
+	public String updateBlog(@RequestBody Blog blog, HttpServletRequest request) {
 		try {
-			Blog blogObjectGeneratedByPostId = blogDao.getBlogByPostId(postid);
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
@@ -187,9 +166,20 @@ public class BlogController {
 
 			} else {
 
+				HttpSession session = request.getSession(false);
+
+				Object sessionObject = session.getAttribute("email");
+				String emailFromSession = sessionObject.toString();
+
+				Blog blogObject = blogDao.getBlogByEmail(emailFromSession);
+				String postidFromBlog = blogObject.getPostid();
+
+				Blog blogObjectGeneratedByPostId = blogDao.getBlogByPostId(postidFromBlog);
+
 				if (BlogValidator.validateTitlePattern(blog.getTitle().trim())
 						&& BlogValidator.validatePostContentPattern(blog.getPostcontent().trim())) {
 					String postId = blogObjectGeneratedByPostId.getPostid();
+
 					this.id = postId;
 
 					blogDao.update(id, blog);
@@ -210,25 +200,10 @@ public class BlogController {
 
 	}
 
-	
-	
-	
-	@RequestMapping(value = "/blog/{postId}", method = RequestMethod.DELETE)
-	public String deleteBlog(@PathVariable String postId, HttpServletRequest request, HttpServletResponse response,
-			ModelMap modelMap) {
+	@RequestMapping(value = "/blog", method = RequestMethod.DELETE)
+	public String deleteBlog(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
 
 		try {
-
-			Blog blog = blogDao.getBlogByPostId(postId);
-
-			if (blog == null) {
-				return "invalid postid";
-			}
-
-			String emailFromListForIncomingPostTd = blog.getEmail();
-
-			String emailFromSession = blogDao.verfifyBeforeUpdateDelete(request);
-
 			Object object = blogDao.verifyUser(request);
 
 			if (object == null) {
@@ -236,6 +211,14 @@ public class BlogController {
 				return ("login required");
 
 			} else {
+				HttpSession session = request.getSession(false);
+
+				Object sessionObject = session.getAttribute("email");
+				String emailFromSession = sessionObject.toString();
+
+				Blog blogObject = blogDao.getBlogByEmail(emailFromSession);
+				String postId = blogObject.getPostid();
+				String emailFromListForIncomingPostTd = blogObject.getEmail();
 
 				if (emailFromListForIncomingPostTd.equals(emailFromSession)) {
 					blogDao.deleteBlog(postId);

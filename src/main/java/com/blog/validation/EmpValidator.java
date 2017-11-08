@@ -22,7 +22,7 @@ public class EmpValidator {
 		logger.info("Validating email.");
 		pattern = Pattern.compile(EMAIL_PATTERN);
 		matcher = pattern.matcher(hex);
-		//System.out.println(matcher.matches() + "\t" + "checking validate email method");
+		
 		boolean result = matcher.matches();
 		
 		logger.info("Email validated : {}", result);
@@ -35,7 +35,7 @@ public class EmpValidator {
 	private static final String FIRST_NAME_PATTERN = "[a-zA-z]+([ _-][a-zA-Z]+)*";
 
 	public static boolean validateFirstName(final String firstName) {
-		//System.out.println("validate firstName");
+		
 		logger.info("Validating fIrstName.");
 		pattern = Pattern.compile(FIRST_NAME_PATTERN);
 		matcher = pattern.matcher(firstName);
@@ -47,7 +47,7 @@ public class EmpValidator {
 	
 	private static final String LAST_NAME_PATTERN="[a-zA-z]+([ _-][a-zA-Z]+)*";
 	public static boolean validateLastName(final String LastName) {
-		//System.out.println("valiadte LastName");
+	
 		logger.info("Validating LastName.");
 		pattern = Pattern.compile(LAST_NAME_PATTERN);
 		matcher = pattern.matcher(LastName);
@@ -69,7 +69,7 @@ public class EmpValidator {
 
 	public static boolean validateUsername(final String userName) {
 		logger.info("Validating userName.");
-		//System.out.println("validate userName");
+	
 		pattern = Pattern.compile(USERNAME_PATTERN);
 		matcher = pattern.matcher(userName);
 		boolean result = matcher.matches();
@@ -82,7 +82,7 @@ public class EmpValidator {
 	private static final String PASSWORD_PATTERN = "^.{8,15}$";
 
 	public static boolean validatePassword(final String password) {
-		//System.out.println("validate password");
+	
 		logger.info("Validating pssword.");
 		pattern = Pattern.compile(PASSWORD_PATTERN);
 		matcher = pattern.matcher(password);

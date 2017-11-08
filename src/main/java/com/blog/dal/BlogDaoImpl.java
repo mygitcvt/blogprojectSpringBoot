@@ -13,6 +13,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class BlogDaoImpl implements BlogDao {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
+	int noOfLikes;
 
 	public void createblog(String title, String postcontent, String email, String userName, Date createdOnDate,
 			Date lastUpdatedOnDate) {
@@ -57,8 +59,8 @@ public class BlogDaoImpl implements BlogDao {
 
 	}
 
-	public List<Blog> likePost(String email, String postid, HttpServletRequest request) {
-		List<Blog> listofBlogbeforelike = getBlogList();
+	public int likePost(String email, String postid, HttpServletRequest request) {
+		// List<Blog> listofBlogbeforelike = getBlogList();
 
 		Query query = new Query();
 
@@ -73,6 +75,8 @@ public class BlogDaoImpl implements BlogDao {
 			String emailFromSession = sessionObjectGeneratedFromEmailSetAtLoginTime.toString();
 
 			if (blogObjectGeneratedByLikePost.getLikedByUsers().contains(emailFromSession)) {
+				int noOfLikes = blogObjectGeneratedByLikePost.getNoOfLikes();
+				this.noOfLikes = noOfLikes;
 
 			} else {
 
@@ -81,12 +85,12 @@ public class BlogDaoImpl implements BlogDao {
 				blogObjectGeneratedByLikePost.setNoOfLikes(blogObjectGeneratedByLikePost.getNoOfLikes() + 1);
 
 				int noOfLikes = blogObjectGeneratedByLikePost.getNoOfLikes();
+				this.noOfLikes = noOfLikes;
 				List<String> likedByUsers = blogObjectGeneratedByLikePost.getLikedByUsers();
 
 				if (updateBlogForNoOfLikes(noOfLikes, likedByUsers, postid)) {
 
-					List<Blog> listOfBlogAfterLike = getBlogList();
-					return listOfBlogAfterLike;
+					return noOfLikes;
 
 				}
 
@@ -94,7 +98,7 @@ public class BlogDaoImpl implements BlogDao {
 
 		}
 
-		return listofBlogbeforelike;
+		return noOfLikes;
 	}
 
 	public Boolean updateBlogForNoOfLikes(int noOfLikes, List<String> likedByUsers, String postId) {
@@ -184,11 +188,19 @@ public class BlogDaoImpl implements BlogDao {
 	}
 
 	public Object verifyUser(HttpServletRequest request) {
+		Object object = null;
 
 		HttpSession session = request.getSession(false);
-		Object sessionObjectForCheckingUserValidity = session.getAttribute("uservalidity");
+		if (session == null) {
+			return object;
 
-		return sessionObjectForCheckingUserValidity;
+		} else {
+
+			Object sessionObjectForCheckingUserValidity = session.getAttribute("uservalidity");
+			object = sessionObjectForCheckingUserValidity;
+
+			return object;
+		}
 
 	}
 

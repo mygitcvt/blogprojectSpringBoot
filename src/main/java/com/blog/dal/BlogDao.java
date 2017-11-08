@@ -14,7 +14,7 @@ public interface BlogDao {
 	void createblog(String title, String postcontent, String email, String userName, Date createdOnDate,
 			Date lastUpdatedOnDate);
 
-	List<Blog> likePost(String email, String postid, HttpServletRequest request);
+	int likePost(String email, String postid, HttpServletRequest request);
 
 	Blog getBlogByPostId(String postid);
 
