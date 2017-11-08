@@ -65,7 +65,7 @@ public class EmpValidator {
 	
 	
 
-	private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_.-]{3,}$";
+	private static final String USERNAME_PATTERN = "[a-zA-z]+([ '_@-][a-zA-Z]+)*";
 
 	public static boolean validateUsername(final String userName) {
 		logger.info("Validating userName.");

@@ -47,14 +47,15 @@ public class BlogController {
 	private EmpDao empDao;
 
 	@RequestMapping(value = "/blog", method = RequestMethod.POST)
-	public String createBlog(@ModelAttribute("blog") Blog blog, ModelMap mm, HttpServletRequest request) {
+	public String createBlog(@ModelAttribute("blog") Blog blog, ModelMap mm, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
-
-				return "you are not login";
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return "unauthorised access";
 
 			} else {
 
@@ -91,21 +92,23 @@ public class BlogController {
 			}
 
 		} catch (Exception e) {
-			String error = e.toString();
-			return error;
+			// String error = e.toString();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
+			return "unauthorised access";
 		}
 
 	}
 
 	@RequestMapping(value = "/blog", method = RequestMethod.GET)
-	public List<Blog> blogList(HttpServletRequest request) {
+	public List<Blog> blogList(HttpServletRequest request, HttpServletResponse response) {
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
-
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				logger.info("unauthorised access");
 				return null;
 
 			} else {
@@ -115,24 +118,28 @@ public class BlogController {
 
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return null;
 		}
 
 	}
 
 	@RequestMapping(value = "like/{postid}")
-	public int likePost(HttpServletRequest request, ModelMap modelMap, @PathVariable String postid) {
+	public int likePost(HttpServletRequest request, ModelMap modelMap, @PathVariable String postid,
+			HttpServletResponse response) {
 
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-				logger.info("login required");
+				logger.info("unauthorised access");
 
 			} else {
-				
+
 				HttpSession session = request.getSession(false);
 
 				Object sessionObject = session.getAttribute("email");
@@ -147,7 +154,7 @@ public class BlogController {
 			}
 			return (Integer) null;
 		} catch (Exception e) {
-
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return (Integer) null;
 
 		}
@@ -155,14 +162,15 @@ public class BlogController {
 	}
 
 	@RequestMapping(value = "/blog", method = RequestMethod.PUT)
-	public String updateBlog(@RequestBody Blog blog, HttpServletRequest request) {
+	public String updateBlog(@RequestBody Blog blog, HttpServletRequest request, HttpServletResponse response) {
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-				return "login required";
+				return "unauthorised access";
 
 			} else {
 
@@ -194,8 +202,11 @@ public class BlogController {
 
 			}
 		} catch (Exception e) {
-			String error = e.toString();
-			return error;
+			// String error = e.toString();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+			return "unauthorised access";
+
 		}
 
 	}
@@ -204,11 +215,12 @@ public class BlogController {
 	public String deleteBlog(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
 
 		try {
-			Object object = blogDao.verifyUser(request);
+			Object checkingUservalidity = blogDao.verifyUser(request);
 
-			if (object == null) {
+			if (checkingUservalidity == null) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-				return ("login required");
+				return ("unauthorised access");
 
 			} else {
 				HttpSession session = request.getSession(false);
@@ -233,9 +245,12 @@ public class BlogController {
 
 			}
 		} catch (Exception e) {
-			String error = e.toString();
+			// String error = e.toString();
 
-			return error;
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+			return "unauthorised access";
+
 		}
 
 	}

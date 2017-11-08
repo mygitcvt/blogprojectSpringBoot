@@ -2,9 +2,8 @@ package com.blog.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,8 @@ public class EmpController {
 	BlogDao blogDao;
 
 	@RequestMapping(value = "/emp", method = RequestMethod.POST)
-	public String saveEmpData(@ModelAttribute("emp") Emp emp, ModelMap modelMap, Errors errors) {
+	public String saveEmpData(@ModelAttribute("emp") Emp emp, ModelMap modelMap, Errors errors,
+			HttpServletResponse response) {
 		try {
 
 			String name = emp.getFirst_Name();
@@ -67,22 +67,21 @@ public class EmpController {
 
 		} catch (Exception e) {
 			String error = e.toString();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-			// logger.info("this email is already registered");
 			return error;
 		}
 	}
 
 	@RequestMapping(value = "/emp", method = RequestMethod.GET)
-	public List<Emp> userList(HttpServletRequest request, ModelMap modelMap) {
+	public List<Emp> userList(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
 
 		try {
 
 			// Object checkingUservalidity = blogDao.verifyUser(request);
 
 			/*
-			 * if (checkingUservalidity == null) { 
-			 * logger.info("login required");
+			 * if (checkingUservalidity == null) { logger.info("login required");
 			 * 
 			 * return null;
 			 * 
@@ -92,7 +91,7 @@ public class EmpController {
 			List<Emp> employeeList = empDao.getEmployees();
 			return employeeList;
 		} catch (Exception e) {
-
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			e.printStackTrace();
 			return null;
 
@@ -101,12 +100,15 @@ public class EmpController {
 	}
 
 	@RequestMapping(value = "/emp", method = RequestMethod.PUT)
-	public String updateUser(@RequestBody Emp emp, HttpServletRequest request) {
+	public String updateUser(@RequestBody Emp emp, HttpServletRequest request, HttpServletResponse response) {
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 			if (checkingUservalidity == null) {
-				return "unauthorized access";
+
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+				return "unauthorised access";
 			} else {
 
 				HttpSession sessionObjectForEmail = request.getSession(false);
@@ -136,26 +138,26 @@ public class EmpController {
 				}
 			}
 
-			return "not updated";
+			return "not updated beacuse entered pattern not matching";
 		} catch (Exception e) {
-			logger.info("throwing exception in the case of update");
-			String error = e.toString();
 
-			return error;
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+			return "unauthorised access";
 		}
 
 	}
 
 	@RequestMapping(value = "/emp", method = RequestMethod.DELETE)
-	public String deleteUser(HttpServletRequest request) {
+	public String deleteUser(HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
-
-				return "user not login";
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return "unauthorised access";
 
 			}
 			HttpSession sessionObjectForEmail = request.getSession(false);
@@ -170,11 +172,13 @@ public class EmpController {
 			HttpSession session = request.getSession(false);
 
 			session.invalidate();
-			return "record successfully deleted";
+			return "record deleted successfully ";
 
 		} catch (Exception e) {
-			String error = e.toString();
-			return error;
+			// String error = e.toString();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+			return "unauthorised access";
 		}
 
 	}
@@ -192,8 +196,8 @@ public class EmpController {
 				Object sessionObject = session.getAttribute("email");
 				String emailFromSession = sessionObject.toString();
 				if (emailFromSession.equals(emp.getEmail()))
-					;
-				return "you are already login";
+
+					return "you are already login";
 
 			}
 
@@ -217,26 +221,26 @@ public class EmpController {
 				return "you are successfully logged in!!";
 
 			} else {
-				return "not successfully login";
+				return "unathorised access";
 			}
 
 		} catch (Exception e) {
 			String error = e.toString();
 
-			return error;
+			return "unathorised access";
 		}
 
 	}
 
 	@RequestMapping(value = "/logout")
-	public String Logout(HttpServletRequest request, ModelMap mm) {
+	public String Logout(HttpServletRequest request, HttpServletResponse response, ModelMap mm) {
 		try {
 
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
-
-				return "you are not login";
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return "unauthorised access";
 
 			} else {
 
@@ -249,9 +253,10 @@ public class EmpController {
 			}
 
 		} catch (Exception e) {
-			String error = e.toString();
+			// String error = e.toString();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-			return error;
+			return "unauthorised access";
 		}
 
 	}
