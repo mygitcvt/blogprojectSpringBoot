@@ -164,6 +164,27 @@ public class BlogDaoImpl implements BlogDao {
 
 	}
 
+	public Boolean EmailAndUserNameUpdation(String postId, String username,Blog blog) {
+		try {
+
+			Query query = new Query(Criteria.where("postid").is(postId));
+
+			Update update = new Update();
+
+			
+			update.set("userName", username);
+			update.set("lastUpdatedOnDate", blog.getLastUpdatedOnDate());
+			mongoTemplate.updateFirst(query, update, Blog.class);
+
+			return true;
+
+		} catch (Exception e) {
+
+			return false;
+		}
+
+	}
+
 	public Boolean deleteBlog(String postId) {
 
 		try {

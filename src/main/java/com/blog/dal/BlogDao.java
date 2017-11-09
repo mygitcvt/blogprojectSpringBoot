@@ -21,6 +21,7 @@ public interface BlogDao {
 	Blog getBlogByEmail(String email);
 
 	Boolean update(String postId, Blog blog);
+	Boolean EmailAndUserNameUpdation(String postId,String username,Blog blog);
 
 	Boolean deleteBlog(String postId);
 

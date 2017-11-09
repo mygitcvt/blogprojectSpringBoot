@@ -30,7 +30,7 @@ public class EmpValidator {
 		return result;
 	}
 
-	private static final String FIRST_NAME_PATTERN = "[a-zA-z]+([ _-][a-zA-Z]+)*";
+	private static final String FIRST_NAME_PATTERN = "[a-zA-z0-9]+([ _-][a-zA-Z0-9]+)*";
 
 	public static boolean validateFirstName(final String firstName) {
 
@@ -43,7 +43,7 @@ public class EmpValidator {
 
 	}
 
-	private static final String LAST_NAME_PATTERN = "[a-zA-z]+([ _-][a-zA-Z]+)*";
+	private static final String LAST_NAME_PATTERN = "[a-zA-z0-9]+([ _-][a-zA-Z0-9]+)*";
 
 	public static boolean validateLastName(final String LastName) {
 
@@ -56,7 +56,7 @@ public class EmpValidator {
 
 	}
 
-	private static final String USERNAME_PATTERN = "[a-zA-z]+([ '_@-][a-zA-Z]+)*";
+	private static final String USERNAME_PATTERN = "[a-zA-z0-9]+([ '_@-][a-zA-Z0-9]+)*";
 
 	public static boolean validateUsername(final String userName) {
 		logger.info("Validating userName.");

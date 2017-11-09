@@ -54,12 +54,15 @@ public class BlogController {
 			Object checkingUservalidity = blogDao.verifyUser(request);
 
 			if (checkingUservalidity == null) {
+				logger.info("user not login for creating blog");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				return "unauthorised access";
 
 			} else {
+				logger.info("in else block for creating block");
 
 				HttpSession session = request.getSession(false);
+				logger.info("checking session for creating blog{}", session);
 
 				Object emailFromSessionObject = session.getAttribute("email");
 				String emailFromSession = emailFromSessionObject.toString();
@@ -68,16 +71,23 @@ public class BlogController {
 				this.userName = userNameFromSession;
 				this.email = emailFromSession;
 
+				// logger.info("checking blog objject{}",blog);
 				String title = blog.getTitle();
+
+				logger.info("checking title: {}", title);
 
 				String postcontent = blog.getPostcontent();
 
 				Date createdOnDate = blog.getCreatedOnDate();
 				Date lastUpdatedOnDate = blog.getLastUpdatedOnDate();
+				logger.info("createdon date : {}", createdOnDate);
+				boolean validateTitle = BlogValidator.validateTitlePattern(title.trim());
+				logger.info("validate title : {}", validateTitle);
 
 				if (BlogValidator.validateTitlePattern(title.trim())
 						&& BlogValidator.validatePostContentPattern(postcontent.trim())) {
-					// ("creting blog");
+
+					logger.info("creating blog");
 
 					blogDao.createblog(title.trim(), postcontent.trim(), email, userName, createdOnDate,
 							lastUpdatedOnDate);
@@ -92,10 +102,9 @@ public class BlogController {
 			}
 
 		} catch (Exception e) {
-			// String error = e.toString();
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			String error = e.toString();
 
-			return "unauthorised access";
+			return error;
 		}
 
 	}
@@ -202,10 +211,9 @@ public class BlogController {
 
 			}
 		} catch (Exception e) {
-			// String error = e.toString();
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			String error = e.toString();
 
-			return "unauthorised access";
+			return error;
 
 		}
 
@@ -245,11 +253,9 @@ public class BlogController {
 
 			}
 		} catch (Exception e) {
-			// String error = e.toString();
+			String error = e.toString();
 
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-			return "unauthorised access";
+			return error;
 
 		}
 

@@ -27,6 +27,7 @@ import com.blog.dal.BlogDao;
 import com.blog.dal.BlogDaoImpl;
 import com.blog.dal.EmpDao;
 import com.blog.dal.EmpDaoImpl;
+import com.blog.model.Blog;
 import com.blog.model.Emp;
 import com.blog.validation.EmpValidator;
 
@@ -91,7 +92,7 @@ public class EmpController {
 			List<Emp> employeeList = empDao.getEmployees();
 			return employeeList;
 		} catch (Exception e) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
 			e.printStackTrace();
 			return null;
 
@@ -114,6 +115,7 @@ public class EmpController {
 				HttpSession sessionObjectForEmail = request.getSession(false);
 				Object sessionObject = sessionObjectForEmail.getAttribute("email");
 				String emailFromSession = sessionObject.toString();
+				logger.info("cheking user object:{}",emp);
 
 				Emp empObject = empDao.getEmpByemail(emailFromSession);
 				int idforlgoinUser = empObject.getId();
@@ -133,6 +135,22 @@ public class EmpController {
 						&& EmpValidator.validateUsername(emp.getUsername().trim())) {
 
 					empDao.update(emp, gettingIdFromEmpObject);
+					String updatedEmail=emp.getEmail();
+					HttpSession sessionForUpdatedEmail=request.getSession(false);
+					sessionForUpdatedEmail.setAttribute("email", updatedEmail);
+					//String emailFromSession = sessionObject.toString();
+					logger.info("updated email : {}",updatedEmail);
+					logger.info("checking blogDao : {}",blogDao);
+					
+					Blog blogObject = blogDao.getBlogByEmail(updatedEmail);
+					if(blogObject !=null) {
+						
+					
+					logger.info("checking blog object : {}",blogObject);
+					String postidFromBlog = blogObject.getPostid();
+					blogDao.EmailAndUserNameUpdation(postidFromBlog,emp.getFirst_Name(), blogObject);
+					}
+
 
 					return "data updated successfully";
 				}
@@ -140,10 +158,8 @@ public class EmpController {
 
 			return "not updated beacuse entered pattern not matching";
 		} catch (Exception e) {
-
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-			return "unauthorised access";
+			String error = e.toString();
+			return error;
 		}
 
 	}
@@ -175,10 +191,9 @@ public class EmpController {
 			return "record deleted successfully ";
 
 		} catch (Exception e) {
-			// String error = e.toString();
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			String error = e.toString();
 
-			return "unauthorised access";
+			return error;
 		}
 
 	}
@@ -227,7 +242,7 @@ public class EmpController {
 		} catch (Exception e) {
 			String error = e.toString();
 
-			return "unathorised access";
+			return error;
 		}
 
 	}
@@ -253,10 +268,9 @@ public class EmpController {
 			}
 
 		} catch (Exception e) {
-			// String error = e.toString();
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			String error = e.toString();
 
-			return "unauthorised access";
+			return error;
 		}
 
 	}
